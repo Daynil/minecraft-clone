@@ -35,11 +35,11 @@ public class MeshGenerator : MonoBehaviour
           if (x < meshSize - 1)
           {
             /*
-                |\
-                | \
-                |  \
-                |___\
-                x
+              @
+              @@
+              @@@
+              @@@@
+              x@@@@
             */
             // Draw triangle right of vertex
             // Don't draw at the rightmost vertex
@@ -52,11 +52,11 @@ public class MeshGenerator : MonoBehaviour
           if (x > 0)
           {
             /*
-                ____
-                \  |
-                 \ |
-                  \|
-                   x
+              @@@@@
+               @@@@
+                @@@
+                 @@
+                  x
             */
             // Draw triangle left of vertex
             // Don't draw at leftmost vertex
