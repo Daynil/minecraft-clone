@@ -5,36 +5,64 @@ using UnityEngine;
 public class MeshGenerator : MonoBehaviour
 {
 
-  public Mesh GenerateMesh(float[,] heightMap)
+  public Mesh GenerateMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve)
   {
     // Assuming heightMap is a square array
     int meshSize = heightMap.GetLength(0);
+
     Vector3[] vertices = new Vector3[meshSize * meshSize];
     Vector2[] uvs = new Vector2[meshSize * meshSize];
-    int[] triangles = new int[(meshSize - 1) * (meshSize - 1) * 6];
+    int trianglesPerRow = (meshSize - 1) * 2;
+    int[] triangles = new int[trianglesPerRow * meshSize * 3];
 
     int verticesIndex = 0;
     int triangleIndex = 0;
-
-    for (int y = 0; y < meshSize; y++)
+    for (int z = 0; z < meshSize; z++)
     {
       for (int x = 0; x < meshSize; x++)
       {
-        vertices[verticesIndex] = new Vector3(x, heightMap[x, y], y);
-        uvs[verticesIndex] = new Vector2(x / (float)meshSize, y / (float)meshSize);
+        // vertices[verticesIndex] = new Vector3(x, Random.Range(0f, 1f), z);
+        vertices[verticesIndex] = new Vector3(x, heightCurve.Evaluate(heightMap[x, z]) * heightMultiplier, z);
+        uvs[verticesIndex] = new Vector2(x / (float)meshSize, z / (float)meshSize);
 
-        if (x < meshSize - 1 && y < meshSize - 1)
+        // Draw triangles bottom-up, top row of vertices has no triangles to draw
+        if (z < meshSize - 1)
         {
-          int topLeftIndex = y * meshSize;
-          triangles[triangleIndex] = topLeftIndex + x;
-          triangles[triangleIndex + 1] = topLeftIndex + x + 4;
-          triangles[triangleIndex + 2] = topLeftIndex + x + 3;
 
-          triangles[triangleIndex + 3] = topLeftIndex + x;
-          triangles[triangleIndex + 4] = topLeftIndex + x + 1;
-          triangles[triangleIndex + 5] = topLeftIndex + x + 4;
+          if (x < meshSize - 1)
+          {
+            /*
+                |\
+                | \
+                |  \
+                |___\
+                x
+            */
+            // Draw triangle right of vertex
+            // Don't draw at the rightmost vertex
+            triangles[triangleIndex] = verticesIndex;
+            triangles[triangleIndex + 1] = verticesIndex + meshSize;
+            triangles[triangleIndex + 2] = verticesIndex + 1;
+            triangleIndex += 3;
+          }
 
-          triangleIndex += 6;
+          if (x > 0)
+          {
+            /*
+                ____
+                \  |
+                 \ |
+                  \|
+                   x
+            */
+            // Draw triangle left of vertex
+            // Don't draw at leftmost vertex
+            triangles[triangleIndex] = verticesIndex;
+            triangles[triangleIndex + 1] = verticesIndex + meshSize - 1;
+            triangles[triangleIndex + 2] = verticesIndex + meshSize;
+            triangleIndex += 3;
+          }
+
         }
 
         verticesIndex++;

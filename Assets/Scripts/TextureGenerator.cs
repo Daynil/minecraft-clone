@@ -11,7 +11,8 @@ public static class TextureGenerator
     int height = colorMap.GetLength(1);
 
     Texture2D texture = new Texture2D(width, height);
-    texture.filterMode = FilterMode.Point;
+    // texture.filterMode = FilterMode.Point;
+    texture.filterMode = FilterMode.Bilinear;
     texture.wrapMode = TextureWrapMode.Clamp;
 
     Color[] colorMapFlat = new Color[width * height];
